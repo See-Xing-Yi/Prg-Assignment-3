@@ -38,6 +38,14 @@ def load_map(filename, map_struct):
 
     map_file.close()
 
+# Bag functions
+def bag():
+    pass
+
+# Pickaxe functions
+def pickaxe():
+    pass
+
 # This function clears the fog of war at the 3x3 square around the player
 def clear_fog(fog, player):
     return
@@ -64,14 +72,29 @@ def initialize_game(game_map, fog, player):
     
 # This function draws the entire map, covered by the fof
 def draw_map(game_map, fog, player):
+    print("\n -- Map -- ")
     return
 
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player):
     return
 
+#Mine ore functions
+def mine_ore():
+
+
 # This function shows the information for the player
 def show_information(player):
+    print("----- Player Information -----")
+    print(f"Name: {player}")
+    print(f"Portal Position: ({})")
+    print(f"Pickaxe Level: {}")
+    print("------------------------------")
+    print(f"Load: {}")
+    print("------------------------------")
+    print(f"GP: {}")
+    print(f"Steps Taken: {}")
+    print("------------------------------")
     return
 
 # This function saves the game
@@ -94,6 +117,21 @@ def load_game(game_map, fog, player):
     player:
     return
 
+def starting():
+    if game_state == "main":
+        show_main_menu()
+        choice = input("Your choice?").lower()
+        if choice == "n":
+            show_town_menu()
+            player = input(
+        elif choice == "l":
+            #add later don't judge >:(
+            pass
+        elif choice == "q":
+            print("Hope to see you again!")
+        else:
+            print("Invalid option.")
+
 def show_main_menu():
     print()
     print("--- Main Menu ----")
@@ -102,6 +140,7 @@ def show_main_menu():
 #    print("(H)igh scores")
     print("(Q)uit")
     print("------------------")
+    
 
 def show_town_menu():
     print()
@@ -126,16 +165,5 @@ print("How quickly can you get the 1000 GP you need to retire")
 print("  and live happily ever after?")
 print("-----------------------------------------------------------")
 
-while True:
-    if game_state == "main":
-        show_main_menu()
-        choice = input("Your choice?").strip().lower()
-        if choice == "n":
-            show_town_menu()
-
-        elif choice == "l":
-            #add later
-        elif choice == "q":
-            print("Hope to see you again!")
-        else:
-            print("Invalid option.")
+def main():
+    while True:
