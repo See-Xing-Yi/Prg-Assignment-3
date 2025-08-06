@@ -3,6 +3,7 @@
 
 from random import randint
 import json
+import os
 
 player = {}
 game_map = []
@@ -17,6 +18,7 @@ WIN_GP = 500
 minerals = ['copper', 'silver', 'gold']
 mineral_names = {'C': 'copper', 'S': 'silver', 'G': 'gold'}
 pickaxe_price = [50, 150]
+backpack_price = 
 
 prices = {}
 prices['copper'] = (1, 3)
@@ -60,12 +62,15 @@ def initialize_game(game_map, fog, player):
     player['day'] = 0
     player['steps'] = 0
     player['turns'] = TURNS_PER_DAY
+    player["pickaxe"] = 1
+    player["capacity"] = 10
 
     clear_fog(fog, player)
 
 #Game Mechanic Functions
 # This function draws the entire map, covered by the fog
-def draw_map(game_map, fog, player, num_rows,num_columns,map):
+def draw_map(game_map, fog, player,map):
+    print("\n ")
     return
 
 # This function draws the 3x3 viewport
@@ -76,16 +81,23 @@ def draw_view(game_map, fog, player):
 
 #Mine ore functions
 def mine_drop():
-    copper = randint(1, 5)
+    
 
 # Bag functions
-def bag():
+def backpack():
     pass
 
 # Pickaxe functions
 def pickaxe(level):
 
     pass
+
+#Sell of ores
+def sell_ores():
+    global player
+    gained_gp = 0
+
+    if player
 
 # This function shows the information for the player
 def show_information(player):
@@ -136,10 +148,19 @@ def show_main_menu():
     print("--- Main Menu ----")
     print("(N)ew game")
     print("(L)oad saved game")
-#    print("(H)igh scores")
+    #print("(H)igh scores")
     print("(Q)uit")
     print("------------------")
-    
+    choice = input(print("Your choice?: ")).lower()
+    if choice == "n":
+        show_town_menu()
+    elif choice == "l":
+        load_game()
+    elif choice == "q":
+        print("Goodbye :D")
+    else:
+        print("Invalid Input")
+        return
 
 def show_town_menu():
     print()
@@ -176,7 +197,7 @@ def show_town_menu():
             
 def shop_menu(buying):
     print("----------------------- Shop Menu -------------------------")
-    print("(P)ickaxe upgrade to Level 2 to mine silver ore for 50 GP")
+    print(f"(P)ickaxe upgrade to {player['pickaxe']+1} to mine silver ore for 50 GP")
     print("(B)ackpack upgrade to carry 12 items for 20 GP")
     print("(L)eave shop")
     print("-----------------------------------------------------------")
@@ -202,18 +223,5 @@ print("How quickly can you get the 1000 GP you need to retire")
 print("  and live happily ever after?")
 print("-----------------------------------------------------------")
 
-def starting():
-    if game_state == "main":
-        show_main_menu()
-        choice = input("Your choice?").lower()
-        if choice == "n":
-            show_town_menu()
-            player = input()
-        elif choice == "l":
-            #add later don't judge >:(
-            pass
-        elif choice == "q":
-            print("Hope to see you again!")
-        else:
-            print("Invalid option.")
+
 
