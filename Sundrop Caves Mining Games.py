@@ -27,17 +27,19 @@ prices['gold'] = (10, 18)
 # This function loads a map structure (a nested list) from a file
 # It also updates MAP_WIDTH and MAP_HEIGHT
 def load_map(filename, map_struct):
-    map_file = open(filename, 'r')
-    global MAP_WIDTH
-    global MAP_HEIGHT
-    
-    map_struct.clear()
-    
-    # TODO: Add your map loading code here
-    
-    MAP_WIDTH = len(map_struct[0])
-    MAP_HEIGHT = len(map_struct)
+    global MAP_WIDTH, MAP_HEIGHT
+    game_map.clear()
+    with open(filename, 'r') as f:
+        lines = [line.rstrip('\n') for line in f]
 
+    # Pad all rows to the same width
+    max_width = max(len(line) for line in lines)
+    for line in lines:
+        map_struct.append(list(line.ljust(max_width)))  # ← pad with spaces
+
+    MAP_HEIGHT = len(map_struct)
+    MAP_WIDTH = max_width
+    
     map_file.close()
 
 # This function clears the fog of war at the 3x3 square around the player
@@ -47,7 +49,6 @@ def clear_fog(fog, player):
 def initialize_game(game_map, fog, player):
     # initialize map
     load_map("level1.txt", game_map)
-
     # TODO: initialize fog
     
     # TODO: initialize player
@@ -62,6 +63,8 @@ def initialize_game(game_map, fog, player):
     player['steps'] = 0
     player['turns'] = TURNS_PER_DAY
     player['pickaxe_level'] = 1
+    player['capacity'] = 10
+    player['load'] = 0
 
     clear_fog(fog, player)
     
@@ -75,6 +78,16 @@ def draw_view(game_map, fog, player):
 
 # This function shows the information for the player
 def show_information(player):
+    print("----- Player Information -----")
+    print(f"Name: {player}")
+    print(f"Portal Position: ({})")
+    print(f"Pickaxe Level: {player['pickaxe_level']}")
+    print("------------------------------")
+    print(f"Load: {player['load']}/{player['capacity']}")
+    print("------------------------------")
+    print(f"GP: {player['GP']}")
+    print(f"Steps Taken: {player['steps']}")
+    print("------------------------------")
     return
 
 # This function saves the game
@@ -92,7 +105,61 @@ def save_game(game_map, fog, player):
         
 # This function loads the game
 def load_game(game_map, fog, player):
+    with open ("save.txt", "r") as save_file:
+        save_data = json.load(save_file)
+        game_map.clear()
+        for row in save_data['game_map']:
+            game_map.append(row)
+        fog.clear()
+        for row in save_data['fog']:
+            fog.append(row)
+        player.clear()
+        player.update(save_data['player'])
+
+        print("Game loaded successfully.")    
     return
+
+def enter_mine(player,mine_map):
+    print("---------------------------------------------------")
+    print(f"                      DAY {player['day']}                       ")
+    x, y = player['x'], player['y']
+    turns = player['turns']
+    print(f"\nTurns left: {turns}, Load: {player['load']}/{player['capacity']}")
+    action = input("(W/A/S/D to move, I: Info, P: Portal, Q: Quit): ").lower()
+    if action in ['w', 'a', 's', 'd']:
+            dx, dy = 0, 0
+            if action == 'w': dy = -1
+            elif action == 's': dy = 1
+            elif action == 'a': dx = -1
+            elif action == 'd': dx = 1
+            nx, ny = player['x'] + dx, player['y'] + dy
+    elif action == "i":
+        pass
+    elif action == "p":
+        pass
+    elif action == "q":
+        print("This is to Quit the game, are you sure?")
+        confirmation = input("y/n: ").lower()
+        if confirmation == "y":
+            show_main_menu()
+        elif confirmation == "n":
+            enter_mine()
+    else:
+        print("Invalid input")
+        return
+    
+    
+
+def sell_ores():
+    global player
+    gained_gp = 0
+    if player['copper'] > 1:
+        prices['copper'].randint
+    if player['silver'] > 1:
+        pass
+    if player['gold'] > 1:
+        pass
+
 
 def show_main_menu():
     print()
@@ -114,6 +181,27 @@ def show_town_menu():
     print("Sa(V)e game")
     print("(Q)uit to main menu")
     print("------------------------")
+    choice = input(print("Your choice? ")).lower()
+    if choice == "b":
+        shop_menu()
+    if choice == "i":
+        show_information()
+    if choice == "m":
+        pass
+    if choice == "e":
+        pass
+    if choice == "v":
+        save_game(game_map, fog, player)
+    if choice == "q":
+        print("Are you sure? Any unsaved changes would be lost.")
+        confirmation = input(print("y/n")).lower()
+        if confirmation == "y":
+            show_main_menu()
+        elif confirmation == "n":
+            show_town_menu()
+        else:
+            print("Invalid Input")
+            return
             
 def shop_menu(buying):
     print("----------------------- Shop Menu -------------------------")
