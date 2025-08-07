@@ -18,6 +18,8 @@ WIN_GP = 500
 minerals = ['copper', 'silver', 'gold']
 mineral_names = {'C': 'copper', 'S': 'silver', 'G': 'gold'}
 pickaxe_price = [50, 150]
+pickaxe_ability = {1: ['copper'], 2: ['copper', 'silver'], 3: ['copper', 'silver', 'gold']}
+ore_drop = {'copper': (1, 5), 'silver': (1, 3), 'gold': (1, 2)} #Wow, stingy
 
 prices = {}
 prices['copper'] = (1, 3)
@@ -44,7 +46,12 @@ def load_map(filename, map_struct):
 
 # This function clears the fog of war at the 3x3 square around the player
 def clear_fog(fog, player):
-    return
+    x, y = player['x'], player['y']
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < MAP_HEIGHT and 0 <= ny < MAP_WIDTH:
+                fog[nx][ny] = True
 
 def initialize_game(game_map, fog, player):
     # initialize map
@@ -70,11 +77,40 @@ def initialize_game(game_map, fog, player):
     
 # This function draws the entire map, covered by the fof
 def draw_map(game_map, fog, player):
-    return
+    print("+" + "-" * MAP_WIDTH + "+")
+    for i in range(MAP_HEIGHT):
+        row = "|"
+        for j in range(MAP_WIDTH):
+            if i == player['x'] and j == player['y']:
+                row += "M"
+            elif fog[i][j]:
+                row += game_map[i][j]
+            else:
+                row += "?"
+        row += "|"
+        print(row)
+    print("+" + "-" * MAP_WIDTH + "+")
 
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player):
-    return
+    print("+---+")
+    for dx in range(-1, 2):
+        row = "|"
+        for dy in range(-1, 2):
+            nx = player['x'] + dx
+            ny = player['y'] + dy
+            if 0 <= nx < MAP_HEIGHT and 0 <= ny < MAP_WIDTH:
+                if nx == player['x'] and ny == player['y']:
+                    row += "M"
+                elif fog[nx][ny]:
+                    row += game_map[nx][ny]
+                else:
+                    row += "?"
+            else:
+                row += "#"
+        row += "|"
+        print(row)
+    print("+---+")
 
 # This function shows the information for the player
 def show_information(player):
@@ -89,6 +125,15 @@ def show_information(player):
     print(f"Steps Taken: {player['steps']}")
     print("------------------------------")
     return
+
+def check_win():
+    if player['GP'] >= 1000:
+        print(f"Woo-hoo! Well done, {player}, you have {player['GP']} GP!")
+        print(f"You now have enough to retire and play video games every day.")
+        print(f"And it only took you {player['day']} days and {player['steps']} steps! You win!")
+        main()
+    else:
+        return
 
 # This function saves the game
 def save_game(game_map, fog, player):
@@ -119,6 +164,9 @@ def load_game(game_map, fog, player):
         print("Game loaded successfully.")    
     return
 
+def in_bounds(x, y):
+    return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
+
 def enter_mine(player,mine_map):
     print("---------------------------------------------------")
     print(f"                      DAY {player['day']}                       ")
@@ -127,16 +175,38 @@ def enter_mine(player,mine_map):
     print(f"\nTurns left: {turns}, Load: {player['load']}/{player['capacity']}")
     action = input("(W/A/S/D to move, I: Info, P: Portal, Q: Quit): ").lower()
     if action in ['w', 'a', 's', 'd']:
-            dx, dy = 0, 0
-            if action == 'w': dy = -1
-            elif action == 's': dy = 1
-            elif action == 'a': dx = -1
-            elif action == 'd': dx = 1
-            nx, ny = player['x'] + dx, player['y'] + dy
+        dx, dy = 0, 0
+        if action == 'w': dy = -1
+        elif action == 's': dy = 1
+        elif action == 'a': dx = -1
+        elif action == 'd': dx = 1
+        nx, ny = player['x'] + dx, player['y'] + dy
+        if not in_bounds(nx, ny):
+                print("You can't go that way.")
+        else:
+            symbol = game_map[ny][nx]
+            mineral = mineral_names.get(symbol)
+            if mineral:
+                    if mineral not in pickaxe_ability[player['pickaxe_level']]:
+                        print(f"You cannot mine {mineral} with your current pickaxe.")
+                    else:
+                        if player['load'] >= player['capacity']:
+                            print(f"You walk over {mineral}, but your bag is full.")
+                        else:
+                            qty = randint(*ore_drop[mineral])
+                            space = player['capacity'] - player['load']
+                            actual = min(qty, space)
+                            player[mineral] += actual
+                            player['load'] += actual
+                            print(f"You mined {qty} piece(s) of {mineral}.")
+                            game_map[ny][nx] = "." # Clear the mined tile
+                            if actual < qty:
+                                print(f"...but you can only carry {actual} more piece(s)!")
     elif action == "i":
         pass
     elif action == "p":
-        pass
+        show_town_menu()
+        check_win()
     elif action == "q":
         print("This is to Quit the game, are you sure?")
         confirmation = input("y/n: ").lower()
@@ -149,16 +219,13 @@ def enter_mine(player,mine_map):
         return
     
     
+    
+    
 
 def sell_ores():
     global player
     gained_gp = 0
-    if player['copper'] > 1:
-        prices['copper'].randint
-    if player['silver'] > 1:
-        pass
-    if player['gold'] > 1:
-        pass
+    if minerals 
 
 
 def show_main_menu():
@@ -187,7 +254,7 @@ def show_town_menu():
     if choice == "i":
         show_information()
     if choice == "m":
-        pass
+        enter_mine(player)
     if choice == "e":
         pass
     if choice == "v":
@@ -230,28 +297,7 @@ def shop_menu(buying):
         show_town_menu()
     else:
         print("Invalid choice.")
-        return
-
-def enter_mine(player,mine_map):
-    
-    print("---------------------------------------------------")
-    print(f"                      DAY {player['day']}                       ")
-    x, y = player['x'], player['y']
-    turns = player['turns']
-    print(f"\nTurns left: {turns}, Load: {player['load']}/{player['capacity']}")
-    action = input("(W/A/S/D to move, I: Info, P: Portal, Q: Quit): ").lower()
-    if action == "w":
-        new_pos = (x + 1, y)
-    elif action == "a":
-        new_pos = (x, y - 1)
-    elif action == "s":
-        new_pos = (x - 1, y)
-    elif action == "d":
-        new_pos = (x, y + 1)
-    else:
-        print("Invalid input")
-        return
-    
+        return  
 
 #--------------------------- MAIN GAME ---------------------------
 game_state = 'main'
