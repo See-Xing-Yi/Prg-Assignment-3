@@ -5,7 +5,7 @@ from random import randint
 import json
 import os
 
-player = {}
+player = []
 game_map = []
 fog = []
 
@@ -18,7 +18,6 @@ WIN_GP = 500
 minerals = ['copper', 'silver', 'gold']
 mineral_names = {'C': 'copper', 'S': 'silver', 'G': 'gold'}
 pickaxe_price = [50, 150]
-backpack_price = 
 
 prices = {}
 prices['copper'] = (1, 3)
@@ -62,55 +61,20 @@ def initialize_game(game_map, fog, player):
     player['day'] = 0
     player['steps'] = 0
     player['turns'] = TURNS_PER_DAY
-    player["pickaxe"] = 1
-    player["capacity"] = 10
+    player['pickaxe_level'] = 1
 
     clear_fog(fog, player)
-
-#Game Mechanic Functions
-# This function draws the entire map, covered by the fog
-def draw_map(game_map, fog, player,map):
-    print("\n ")
+    
+# This function draws the entire map, covered by the fof
+def draw_map(game_map, fog, player):
     return
 
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player):
     return
 
-#Portal Stone Functions
-
-#Mine ore functions
-def mine_drop():
-    
-
-# Bag functions
-def backpack():
-    pass
-
-# Pickaxe functions
-def pickaxe(level):
-
-    pass
-
-#Sell of ores
-def sell_ores():
-    global player
-    gained_gp = 0
-
-    if player
-
 # This function shows the information for the player
 def show_information(player):
-    print("----- Player Information -----")
-    print(f"Name: {player}")
-    print(f"Portal Position: ({})")
-    print(f"Pickaxe Level: {}")
-    print("------------------------------")
-    print(f"Load: {}")
-    print("------------------------------")
-    print(f"GP: {}")
-    print(f"Steps Taken: {}")
-    print("------------------------------")
     return
 
 # This function saves the game
@@ -124,23 +88,10 @@ def save_game(game_map, fog, player):
     with open ("save.txt", "w") as save_file:
         json.dump(save_data, save_file)
     print("Game saved successfully")
-
     return
         
 # This function loads the game
 def load_game(game_map, fog, player):
-    with open ("save.txt", "r") as save_file:
-        save_data = json.load(save_file)
-        game_map.clear()
-        for row in save_data['game_map']:
-            game_map.append(row)
-        fog.clear()
-        for row in save_data['fog']:
-            fog.append(row)
-        player.clear()
-        player.update(save_data['player'])
-
-        print("Game loaded successfully.")
     return
 
 def show_main_menu():
@@ -148,23 +99,13 @@ def show_main_menu():
     print("--- Main Menu ----")
     print("(N)ew game")
     print("(L)oad saved game")
-    #print("(H)igh scores")
+#    print("(H)igh scores")
     print("(Q)uit")
     print("------------------")
-    choice = input(print("Your choice?: ")).lower()
-    if choice == "n":
-        show_town_menu()
-    elif choice == "l":
-        load_game()
-    elif choice == "q":
-        print("Goodbye :D")
-    else:
-        print("Invalid Input")
-        return
 
 def show_town_menu():
     print()
-    # TODO: Show Day
+    print(f"DAY {player['day']}")
     print("----- Sundrop Town -----")
     print("(B)uy stuff")
     print("See Player (I)nformation")
@@ -173,45 +114,56 @@ def show_town_menu():
     print("Sa(V)e game")
     print("(Q)uit to main menu")
     print("------------------------")
-    choice = input(print("Your choice? ")).lower()
-    if choice == "b":
-        shop_menu()
-    if choice == "i":
-        show_information()
-    if choice == "m":
-        pass
-    if choice == "e":
-        pass
-    if choice == "v":
-        save_game(game_map, fog, player)
-    if choice == "q":
-        print("Are you sure? Any unsaved changes would be lost.")
-        confirmation = input(print("y/n")).lower()
-        if confirmation == "y":
-            show_main_menu()
-        elif confirmation == "n":
-            show_town_menu()
-        else:
-            print("Invalid Input")
-            return
             
 def shop_menu(buying):
     print("----------------------- Shop Menu -------------------------")
-    print(f"(P)ickaxe upgrade to {player['pickaxe']+1} to mine silver ore for 50 GP")
+    print(f"(P)ickaxe upgrade to {player['pickaxe_level']+1} to mine silver ore for 50 GP")
     print("(B)ackpack upgrade to carry 12 items for 20 GP")
     print("(L)eave shop")
     print("-----------------------------------------------------------")
-    print(f"GP: {}")
+    print(f"GP: {player['GP']}")
     print("-----------------------------------------------------------")
     buying = input(print("Your choice? ")).lower()
     if buying == "p":
-        -
+        if player['GP'] >= 50:
+            player['GP'] -= 50
+            player['pickaxe_level'] += 1
+            print(f"Pickaxe upgraded to level {player['pickaxe_level']}!")
+        else:
+            print("Not enough GP!")
     elif buying == "b":
-        -
+        if player['GP'] >= 20:
+            player['GP'] -= 20
+            player['capacity'] += 2
+            print(f"Backpack upgraded. New capacity: {player['capacity']}")
+        else:
+            print("Not enough GP!")
     elif buying == "l":
         show_town_menu()
+    else:
+        print("Invalid choice.")
+        return
 
-def enter
+def enter_mine(player,mine_map):
+    
+    print("---------------------------------------------------")
+    print(f"                      DAY {player['day']}                       ")
+    x, y = player['x'], player['y']
+    turns = player['turns']
+    print(f"\nTurns left: {turns}, Load: {player['load']}/{player['capacity']}")
+    action = input("(W/A/S/D to move, I: Info, P: Portal, Q: Quit): ").lower()
+    if action == "w":
+        new_pos = (x + 1, y)
+    elif action == "a":
+        new_pos = (x, y - 1)
+    elif action == "s":
+        new_pos = (x - 1, y)
+    elif action == "d":
+        new_pos = (x, y + 1)
+    else:
+        print("Invalid input")
+        return
+    
 
 #--------------------------- MAIN GAME ---------------------------
 game_state = 'main'
@@ -223,5 +175,19 @@ print("How quickly can you get the 1000 GP you need to retire")
 print("  and live happily ever after?")
 print("-----------------------------------------------------------")
 
-
-
+def main():
+    show_main_menu()
+    choice = input("Your choice?").lower
+    if choice == "n":
+        name = input(print("What is your name?"))
+        player.append(name)
+        show_town_menu()
+        #add after initialization complete
+    elif choice == "l":
+        #add after load game function added
+        pass
+    elif choice == "q":
+        print("See you again!")
+    else:
+        print("Invalid Input.")
+        return
