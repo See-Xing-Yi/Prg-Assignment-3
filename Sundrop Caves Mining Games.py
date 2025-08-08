@@ -1,5 +1,6 @@
 #Name: See Xing Yi
 #ID: S10270953D
+#>:[
 
 from random import randint
 import json
@@ -34,15 +35,12 @@ def load_map(filename, map_struct):
     with open(filename, 'r') as f:
         lines = [line.rstrip('\n') for line in f]
 
-    # Pad all rows to the same width
     max_width = max(len(line) for line in lines)
     for line in lines:
         map_struct.append(list(line.ljust(max_width)))  # ← pad with spaces
 
     MAP_HEIGHT = len(map_struct)
     MAP_WIDTH = max_width
-    
-    map_file.close()
 
 # This function clears the fog of war at the 3x3 square around the player
 def clear_fog(fog, player):
@@ -116,7 +114,7 @@ def draw_view(game_map, fog, player):
 def show_information(player):
     print("----- Player Information -----")
     print(f"Name: {player}")
-    print(f"Portal Position: ({})")
+    print(f"Portal Position: ({player['x'], player['y']})")
     print(f"Pickaxe Level: {player['pickaxe_level']}")
     print("------------------------------")
     print(f"Load: {player['load']}/{player['capacity']}")
