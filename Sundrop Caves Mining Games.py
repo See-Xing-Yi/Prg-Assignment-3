@@ -214,7 +214,7 @@ def enter_mine(player,mine_map):
             enter_mine()
     else:
         print("Invalid input")
-        return
+        enter_mine()
     
 def sell_ores():
     global player
@@ -270,7 +270,7 @@ def show_town_menu():
             show_town_menu()
         else:
             print("Invalid Input")
-            return
+            show_town_menu()
             
 def shop_menu(buying):
     print("----------------------- Shop Menu -------------------------")
@@ -299,17 +299,7 @@ def shop_menu(buying):
         show_town_menu()
     else:
         print("Invalid choice.")
-        return  
-
-#--------------------------- MAIN GAME ---------------------------
-game_state = 'main'
-print("---------------- Welcome to Sundrop Caves! ----------------")
-print("You spent all your money to get the deed to a mine, a small")
-print("  backpack, a simple pickaxe and a magical portal stone.")
-print()
-print("How quickly can you get the 1000 GP you need to retire")
-print("  and live happily ever after?")
-print("-----------------------------------------------------------")
+        shop_menu()
 
 def main():
     show_main_menu()
@@ -324,6 +314,24 @@ def main():
         pass
     elif choice == "q":
         print("See you again!")
+    elif choice == "gimmemoney":
+        player['GP'] += 1000
+        check_win()
     else:
         print("Invalid Input.")
-        return
+        show_main_menu()
+
+#--------------------------- MAIN GAME ---------------------------
+game_state = 'main'
+print("---------------- Welcome to Sundrop Caves! ----------------")
+print("You spent all your money to get the deed to a mine, a small")
+print("  backpack, a simple pickaxe and a magical portal stone.")
+print()
+print("How quickly can you get the 1000 GP you need to retire")
+print("  and live happily ever after?")
+print("-----------------------------------------------------------")
+
+
+main()
+#I keep forgetting this
+#dodododoododododododooo
