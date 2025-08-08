@@ -218,15 +218,19 @@ def enter_mine(player,mine_map):
         print("Invalid input")
         return
     
-    
-    
-    
-
 def sell_ores():
     global player
-    gained_gp = 0
-    if minerals 
-
+    total_gained = 0
+    qty = 0
+    for m in minerals:
+        qty += player['copper'] + player['silver'] + player['gold']
+        if qty > 0:
+            prices = randint(prices)
+            earning = qty * prices
+            print(f"You sold {qty} {m} ore for {earning} GP at {prices} each.")
+            total_gained += earning
+            check_win()
+#Stingy
 
 def show_main_menu():
     print()
