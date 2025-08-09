@@ -97,8 +97,8 @@ def draw_view(game_map, fog, player):
     for dx in range(-1, 2):
         row = "|"
         for dy in range(-1, 2):
-            nx = player['x'] + dx
-            ny = player['y'] + dy
+            nx = player['x'] + dy
+            ny = player['y'] + dx
             if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
                 if nx == player['x'] and ny == player['y']:
                     row += "M"
@@ -306,6 +306,7 @@ def show_town_menu():
         enter_mine(player, game_map)
     if choice == "v":
         save_game(game_map, fog, player)
+        show_town_menu()
     if choice == "q":
         print("Are you sure? Any unsaved changes would be lost.")
         confirmation = input("y/n").lower()
