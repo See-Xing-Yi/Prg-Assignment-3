@@ -307,6 +307,7 @@ def main():
     if choice == "n":
         name = input("What is your name?")
         player['name'] = name 
+        initialize_game
         show_town_menu()
     elif choice == "l":
         load_game()
