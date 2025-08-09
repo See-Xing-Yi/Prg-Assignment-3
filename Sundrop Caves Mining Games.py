@@ -32,7 +32,7 @@ prices['gold'] = (10, 18)
 def load_map(filename, map_struct):
     global MAP_WIDTH, MAP_HEIGHT
     game_map.clear()
-    with open(filename, 'r') as f:
+    with open("level.1.txt", 'r') as f:
         lines = [line.rstrip('\n') for line in f]
 
     max_width = max(len(line) for line in lines)
