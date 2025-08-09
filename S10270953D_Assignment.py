@@ -308,10 +308,8 @@ def main():
         name = input(print("What is your name?"))
         player.append(name)
         show_town_menu()
-        #add after initialization complete
     elif choice == "l":
-        #add after load game function added
-        pass
+        load_game()
     elif choice == "q":
         print("See you again!")
     elif choice == "gimmemoney":
