@@ -6,7 +6,7 @@ from random import randint
 import json
 import os
 
-player = []
+player = {}
 game_map = []
 fog = []
 
@@ -32,7 +32,7 @@ prices['gold'] = (10, 18)
 def load_map(filename, map_struct):
     global MAP_WIDTH, MAP_HEIGHT
     game_map.clear()
-    with open("level.1.txt", 'r') as f:
+    with open("level1.txt", 'r') as f:
         lines = [line.rstrip('\n') for line in f]
 
     max_width = max(len(line) for line in lines)
@@ -48,8 +48,8 @@ def clear_fog(fog, player):
     for dx in range(-1, 2):
         for dy in range(-1, 2):
             nx, ny = x + dx, y + dy
-            if 0 <= nx < MAP_HEIGHT and 0 <= ny < MAP_WIDTH:
-                fog[nx][ny] = True
+            if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
+                fog[ny][nx] = True
 
 def initialize_game(game_map, fog, player):
     # initialize map
@@ -79,7 +79,7 @@ def draw_map(game_map, fog, player):
     for i in range(MAP_HEIGHT):
         row = "|"
         for j in range(MAP_WIDTH):
-            if i == player['x'] and j == player['y']:
+            if i == player['y'] and j == player['x']: 
                 row += "M"
             elif fog[i][j]:
                 row += game_map[i][j]
@@ -97,11 +97,11 @@ def draw_view(game_map, fog, player):
         for dy in range(-1, 2):
             nx = player['x'] + dx
             ny = player['y'] + dy
-            if 0 <= nx < MAP_HEIGHT and 0 <= ny < MAP_WIDTH:
+            if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
                 if nx == player['x'] and ny == player['y']:
                     row += "M"
                 elif fog[nx][ny]:
-                    row += game_map[nx][ny]
+                    row += game_map[ny][nx]
                 else:
                     row += "?"
             else:
@@ -179,7 +179,7 @@ def enter_mine(player,mine_map):
         elif action == 'a': dx = -1
         elif action == 'd': dx = 1
         nx, ny = player['x'] + dx, player['y'] + dy
-        if not in_bounds(nx, ny):
+        if not in_bounds(ny, nx):
                 print("You can't go that way.")
         else:
             symbol = game_map[ny][nx]
@@ -197,7 +197,6 @@ def enter_mine(player,mine_map):
                             player[mineral] += actual
                             player['load'] += actual
                             print(f"You mined {qty} piece(s) of {mineral}.")
-                            game_map[ny][nx] = "." # Clear the mined tile
                             if actual < qty:
                                 print(f"...but you can only carry {actual} more piece(s)!")
     elif action == "i":
@@ -211,23 +210,24 @@ def enter_mine(player,mine_map):
         if confirmation == "y":
             show_main_menu()
         elif confirmation == "n":
-            enter_mine()
+            enter_mine(player, mine_map)
     else:
         print("Invalid input")
-        enter_mine()
+        enter_mine(player, mine_map)
     
 def sell_ores():
     global player
     total_gained = 0
-    qty = 0
     for m in minerals:
-        qty += player['copper'] + player['silver'] + player['gold']
+        qty = player[m]
         if qty > 0:
-            prices = randint(prices)
-            earning = qty * prices
-            print(f"You sold {qty} {m} ore for {earning} GP at {prices} each.")
+            price = randint(prices[m])
+            earning = qty*prices
+            print(f"You sold {qty} {m} ore for {earning} GP at {price} each.")
             total_gained += earning
-            check_win()
+            player[m] = 0
+    player['GP'] += total_gained
+    check_win()
 #Stingy
 
 def show_main_menu():
@@ -250,11 +250,11 @@ def show_town_menu():
     print("Sa(V)e game")
     print("(Q)uit to main menu")
     print("------------------------")
-    choice = input(print("Your choice? ")).lower()
+    choice = input("Your choice? ").lower()
     if choice == "b":
-        shop_menu()
+        shop_menu(player)
     if choice == "i":
-        show_information()
+        show_information(player)
     if choice == "m":
         enter_mine(player)
     if choice == "e":
@@ -263,7 +263,7 @@ def show_town_menu():
         save_game(game_map, fog, player)
     if choice == "q":
         print("Are you sure? Any unsaved changes would be lost.")
-        confirmation = input(print("y/n")).lower()
+        confirmation = input("y/n").lower()
         if confirmation == "y":
             show_main_menu()
         elif confirmation == "n":
@@ -280,7 +280,7 @@ def shop_menu(buying):
     print("-----------------------------------------------------------")
     print(f"GP: {player['GP']}")
     print("-----------------------------------------------------------")
-    buying = input(print("Your choice? ")).lower()
+    buying = input("Your choice? ").lower()
     if buying == "p":
         if player['GP'] >= 50:
             player['GP'] -= 50
@@ -303,17 +303,17 @@ def shop_menu(buying):
 
 def main():
     show_main_menu()
-    choice = input("Your choice?").lower
+    choice = input("Your choice?: ").lower()
     if choice == "n":
-        name = input(print("What is your name?"))
-        player.append(name)
+        name = input("What is your name?")
+        player['name'] = name 
         show_town_menu()
     elif choice == "l":
         load_game()
     elif choice == "q":
         print("See you again!")
     elif choice == "gimmemoney":
-        player['GP'] += 1000
+        player['GP'] += 10000
         check_win()
     else:
         print("Invalid Input.")
@@ -329,7 +329,4 @@ print("How quickly can you get the 1000 GP you need to retire")
 print("  and live happily ever after?")
 print("-----------------------------------------------------------")
 
-
 main()
-#I keep forgetting this
-#dodododoododododododooo
