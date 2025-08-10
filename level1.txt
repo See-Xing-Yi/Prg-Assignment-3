@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 T   CCCCC       SS     GGG    
      CCCCC     SSSS      GGG  
     CCCC      SSSS      GGG   
@@ -8,15 +7,4 @@ CCCCCCCCC           CCCCC
 CCCCCCCC       G   CCCC       
   CCCCC      GG           SS  
    CCCCC      GGG       SSSSSS
-=======
-T   CCCCC       SS     GGG    
-     CCCCC     SSSS      GGG  
-    CCCC      SSSS      GGG   
-             SSSSS  CCC       
-      CC       S     CCCC     
-CCCCCCCCC           CCCCC     
-CCCCCCCC       G   CCCC       
-  CCCCC      GG           SS  
-   CCCCC      GGG       SSSSSS
->>>>>>> 75670e30fea3f3e0fa2716f244665c2af31fa1da
       CCC      GGG      SSSGGG
