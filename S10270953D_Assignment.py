@@ -98,9 +98,9 @@ def draw_map(game_map, fog, player):
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player):
     print("+---+")
-    for dy in range(-1, 2):  # vertical offset
+    for dy in range(-1, 2): 
         row = "|"
-        for dx in range(-1, 2):  # horizontal offset
+        for dx in range(-1, 2):
             nx = player['x'] + dx
             ny = player['y'] + dy
             if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
@@ -179,7 +179,7 @@ def enter_mine(player, mine_map):
         print(f"                      DAY {player['day']}                       ")
         draw_view(mine_map, fog, player)  # Viewport
 
-        print(f"\nTurns left: {player['turns']}, Load: {player['load']}/{player['capacity']}")
+        print(f"\nTurns left: {player['turns']}, Load: {player['load']}/{player['capacity']}, Steps: {player['steps']}")
         print("(WASD) to move")
         print("(M)ap, (I)nformation, (P)ortal, (Q)uit to main menu")
         action = input("Action?").lower()
