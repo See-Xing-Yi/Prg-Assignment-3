@@ -391,11 +391,10 @@ def main():
     elif choice == "q":
         print("See you again!")
     elif choice == "gimmemoney":
-        player['GP'] += 1000
-        check_win()
+        player['GP'] += 10000
     else:
         print("Invalid Input.")
-        show_main_menu()
+        main()
 
 #--------------------------- MAIN GAME ---------------------------
 game_state = 'main'
