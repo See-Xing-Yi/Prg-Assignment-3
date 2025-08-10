@@ -176,7 +176,7 @@ def show_high_scores():
     print("------------------------")
 
 def check_win():
-    if player['GP'] >= 1000:
+    if player['GP'] >= 500:
         print(f"Woo-hoo! Well done, {player['name']}, you have {player['GP']} GP!")
         print(f"You now have enough to retire and play video games every day.")
         print(f"And it only took you {player['day']} days and {player['steps']} steps! You win!")
