@@ -130,7 +130,7 @@ def draw_view(game_map, fog, player, viewport_size=3):
 def show_information(player):
     print("----- Player Information -----")
     print(f"Name: {player['name']}")
-    print(f"Portal Position: ({player['x'], player['y']})")
+    print(f"Portal Position: {player['x'], player['y']}")
     print(f"Pickaxe Level: {player['pickaxe_level']}")
     print("------------------------------")
     print(f"Load: {player['load']}/{player['capacity']}")
@@ -234,6 +234,11 @@ def enter_mine(player, mine_map):
         print("(M)ap, (I)nformation, (P)ortal, (Q)uit to main menu")
         action = input("Action?").lower()
         if action in ['w', 'a', 's', 'd']:
+            if player['load'] >= player['capacity']:
+                print("Your bag is so full, you can't move at all!")
+                player['steps'] += 1
+                player['turns'] -= 1
+                continue
             dx, dy = 0, 0
             if action == 'w':
                 dy = -1
@@ -280,6 +285,7 @@ def enter_mine(player, mine_map):
                         print(f"You mined {qty} piece(s) of {mineral}.")
                         if actual < qty:
                             print(f"...but you can only carry {actual} more piece(s)!")
+                        game_map[ny][nx] = '.'
             continue
         elif action == "m":
             draw_map(game_map, fog, player)
@@ -300,7 +306,6 @@ def enter_mine(player, mine_map):
             print("(You can save in the town menu)")
             confirmation = input("y/n: ").lower()
             if confirmation == "y":
-                show_main_menu()
                 main()
                 return
             else:
