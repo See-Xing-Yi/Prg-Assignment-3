@@ -46,11 +46,18 @@ def load_map(filename, map_struct):
 # This function clears the fog of war at the 3x3 square around the player
 def clear_fog(fog, player):
     x, y = player['x'], player['y']
-    for dx in range(-1, 2):
-        for dy in range(-1, 2):
-            nx, ny = x + dx, y + dy
-            if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
-                fog[ny][nx] = True
+    if player['torch'] == False:
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                nx, ny = x + dx, y + dy
+                if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
+                    fog[ny][nx] = True
+    else:
+        for dx in range(-2, 3):
+            for dy in range(-2, 3):
+                nx, ny = x + dx, y + dy
+                if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
+                    fog[ny][nx] = True
 
 def initialize_game(game_map, fog, player):
     # initialize map
