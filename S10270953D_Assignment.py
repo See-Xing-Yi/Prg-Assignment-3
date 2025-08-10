@@ -26,6 +26,7 @@ prices = {}
 prices['copper'] = (1, 3)
 prices['silver'] = (5, 8)
 prices['gold'] = (10, 18)
+#Why so stingy!!!
 
 # This function loads a map structure (a nested list) from a file
 # It also updates MAP_WIDTH and MAP_HEIGHT
@@ -278,18 +279,27 @@ def show_main_menu():
 
 def shop_menu():
     print("----------------------- Shop Menu -------------------------")
-    print(f"(P)ickaxe upgrade to {player['pickaxe_level']+1} to mine silver ore for 50 GP")
-    print(f"(B)ackpack upgrade to carry {player['capacity']} items for {player['capacity']+2} GP")
+    if player['pickaxe_level'] < 3:
+        next_level = player['pickaxe_level'] + 1
+        ores_for_next_level = pickaxe_ability[next_level]
+        ore_name = ores_for_next_level[-1]
+        price_index = next_level - 2  
+        price = pickaxe_price[price_index]
+        print(f"(P)ickaxe upgrade to {player['pickaxe_level']+1} to mine {ore_name} ore for {price} GP")
+    else:
+        print("Pickaxe is already at max level")
+    print(f"(B)ackpack upgrade to carry {player['capacity']+2} items for {player['capacity']*2} GP")
     print("(L)eave shop")
     print("-----------------------------------------------------------")
     print(f"GP: {player['GP']}")
     print("-----------------------------------------------------------")
     buying = input("Your choice? ").lower()
     if buying == "p":
-        if player['GP'] >= 50:
+        if player['GP'] >= price and player['pickaxe_level'] < 3:
             player['GP'] -= 50
             player['pickaxe_level'] += 1
             print(f"Pickaxe upgraded to level {player['pickaxe_level']}!")
+            shop_menu()
         else:
             print("Not enough GP!")
             shop_menu()
@@ -298,6 +308,7 @@ def shop_menu():
             player['GP'] -= 20
             player['capacity'] += 2
             print(f"Backpack upgraded. New capacity: {player['capacity']}")
+            shop_menu()
         else:
             print("Not enough GP!")
             shop_menu()
@@ -322,19 +333,19 @@ def show_town_menu():
     choice = input("Your choice? ").lower()
     if choice == "b":
         shop_menu()
-    if choice == "i":
+    elif choice == "i":
         show_information(player)
         show_town_menu()
-    if choice == "m":
+    elif choice == "m":
         draw_map(game_map, fog, player)
         show_town_menu()
-    if choice == "e":
+    elif choice == "e":
         clear_fog(fog, player)
         enter_mine(player, game_map)
-    if choice == "v":
+    elif choice == "v":
         save_game(game_map, fog, player)
         show_town_menu()
-    if choice == "q":
+    elif choice == "q":
         print("Are you sure? Any unsaved changes would be lost.")
         confirmation = input("y/n").lower()
         if confirmation == "y":
@@ -342,7 +353,7 @@ def show_town_menu():
             main()
         elif confirmation == "n":
             show_town_menu()
-        else:
+    else:
             print("Invalid Input")
             show_town_menu()
 
