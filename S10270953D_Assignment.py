@@ -139,6 +139,20 @@ def check_win():
     else:
         return
 
+def show_high_scores():
+    print("----- High Scores -----")
+    if not os.path.exists("highscores.txt"):
+        print("No high scores yet!")
+    else:
+        with open("highscores.txt", "r") as f:
+            highscores = json.load(f)
+            if not highscores:
+                print("No high scores yet!")
+            else:
+                for i, score in enumerate(highscores, 1):
+                    print(f"{i}. {score['name']} - {score['GP']} GP, {score['steps']} steps, {score['day']} days")
+    print("------------------------")
+
 # This function saves the game
 def save_game(game_map, fog, player):
     save_data = {
@@ -165,7 +179,10 @@ def load_game(game_map, fog, player):
         player.clear()
         player.update(save_data['player'])
 
-        print("Game loaded successfully.")    
+        print("Game loaded successfully.")  
+    if not os.path.exists("save.txt"):
+        print("No saved game found.")
+        return  
     return
 
 def in_bounds(x, y):
@@ -273,7 +290,7 @@ def show_main_menu():
     print("--- Main Menu ----")
     print("(N)ew game")
     print("(L)oad saved game")
-#    print("(H)igh scores")
+    print("(H)igh scores")
     print("(Q)uit")
     print("------------------")
 
@@ -368,6 +385,9 @@ def main():
     elif choice == "l":
         load_game(game_map, fog, player)
         show_town_menu()
+    elif choice == "h":
+        show_high_scores()
+        main()
     elif choice == "q":
         print("See you again!")
     elif choice == "gimmemoney":
