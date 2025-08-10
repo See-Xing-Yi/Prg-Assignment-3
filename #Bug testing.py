@@ -1,7 +1,4 @@
-#Name: See Xing Yi
-#ID: S10270953D
-#>:[
-
+#Bug testing
 from random import randint
 import json
 import os
@@ -33,8 +30,18 @@ prices['gold'] = (10, 18)
 def load_map(filename, map_struct):
     global MAP_WIDTH, MAP_HEIGHT
     game_map.clear()
+    
+    print(f"Loading map from: {filename}")  # DEBUG
+    if not os.path.exists(filename):
+        print("ERROR: Map file does not exist.")
+        return
+    
     with open("level1.txt", 'r') as f:
         lines = [line.rstrip('\n') for line in f]
+
+    print("Map lines read from file:")  # DEBUG
+    for line in lines:
+        print(line)
 
     max_width = max(len(line) for line in lines)
     for line in lines:
@@ -43,31 +50,27 @@ def load_map(filename, map_struct):
     MAP_HEIGHT = len(map_struct)
     MAP_WIDTH = max_width
 
+    print(f"Map size: {MAP_WIDTH}x{MAP_HEIGHT}")  # DEBUG
+
 # This function clears the fog of war at the 3x3 square around the player
 def clear_fog(fog, player):
     x, y = player['x'], player['y']
-    if player['torch'] == False:
-        for dx in range(-1, 2):
-            for dy in range(-1, 2):
-                nx, ny = x + dx, y + dy
-                if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
-                    fog[ny][nx] = True
-    else:
-        for dx in range(-2, 3):
-            for dy in range(-2, 3):
-                nx, ny = x + dx, y + dy
-                if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
-                    fog[ny][nx] = True
+    for dx in range(-1, 2):
+        for dy in range(-1, 2):
+            nx, ny = x + dx, y + dy
+            if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
+                fog[ny][nx] = True
 
 def initialize_game(game_map, fog, player):
-    # initialize map
     load_map("level1.txt", game_map)
     fog.clear()
-    player['day'] = 1
-    player['x'] = max(0, min(1, MAP_WIDTH - 1))
-    player['y'] = max(0, min(1, MAP_HEIGHT - 1))
-    for _ in range(MAP_HEIGHT):
-        fog.append([False] * MAP_WIDTH)
+
+    for y in range(MAP_HEIGHT):
+        for x in range(MAP_WIDTH):
+            if game_map[y][x] == 'T':
+                player['x'] = x
+                player['y'] = y
+                break
 
     # TODO: initialize player
     #   You will probably add other entries into the player dictionary
@@ -106,22 +109,37 @@ def draw_map(game_map, fog, player):
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player, viewport_size=3):
     half = viewport_size // 2
-    print("+" + "-" * viewport_size + "+")
-    for dy in range(-half, half + 1):
-        row = "|"
-        for dx in range(-half, half + 1):
-            nx = player['x'] + dx
-            ny = player['y'] + dy
 
-            if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
-                if nx == player['x'] and ny == player['y']:
-                    row += "M"  # Player marker
-                elif fog[ny][nx]:
-                    row += game_map[ny][nx]
-                else:
-                    row += "?"
+    # Calculate viewport boundaries, clamping within map limits
+    min_x = max(0, player['x'] - half)
+    max_x = min(MAP_WIDTH - 1, player['x'] + half)
+    min_y = max(0, player['y'] - half)
+    max_y = min(MAP_HEIGHT - 1, player['y'] + half)
+
+    # Adjust if the viewport is smaller than viewport_size (near edges)
+    # Try to expand viewport if clipped on one side and possible on the other
+    if (max_x - min_x) + 1 < viewport_size:
+        if min_x == 0:
+            max_x = min(MAP_WIDTH - 1, max_x + (viewport_size - (max_x - min_x + 1)))
+        elif max_x == MAP_WIDTH - 1:
+            min_x = max(0, min_x - (viewport_size - (max_x - min_x + 1)))
+
+    if (max_y - min_y) + 1 < viewport_size:
+        if min_y == 0:
+            max_y = min(MAP_HEIGHT - 1, max_y + (viewport_size - (max_y - min_y + 1)))
+        elif max_y == MAP_HEIGHT - 1:
+            min_y = max(0, min_y - (viewport_size - (max_y - min_y + 1)))
+
+    print("+" + "-" * viewport_size + "+")
+    for y in range(min_y, max_y + 1):
+        row = "|"
+        for x in range(min_x, max_x + 1):
+            if x == player['x'] and y == player['y']:
+                row += "M"
+            elif fog[y][x]:
+                row += game_map[y][x]
             else:
-                row += "#"  # Outside of map
+                row += "?"
         row += "|"
         print(row)
     print("+" + "-" * viewport_size + "+")
@@ -130,7 +148,7 @@ def draw_view(game_map, fog, player, viewport_size=3):
 def show_information(player):
     print("----- Player Information -----")
     print(f"Name: {player['name']}")
-    print(f"Portal Position: {player['x'], player['y']}")
+    print(f"Portal Position: ({player['x'], player['y']})")
     print(f"Pickaxe Level: {player['pickaxe_level']}")
     print("------------------------------")
     print(f"Load: {player['load']}/{player['capacity']}")
@@ -176,7 +194,7 @@ def show_high_scores():
     print("------------------------")
 
 def check_win():
-    if player['GP'] >= 500:
+    if player['GP'] >= 1000:
         print(f"Woo-hoo! Well done, {player['name']}, you have {player['GP']} GP!")
         print(f"You now have enough to retire and play video games every day.")
         print(f"And it only took you {player['day']} days and {player['steps']} steps! You win!")
@@ -234,11 +252,6 @@ def enter_mine(player, mine_map):
         print("(M)ap, (I)nformation, (P)ortal, (Q)uit to main menu")
         action = input("Action?").lower()
         if action in ['w', 'a', 's', 'd']:
-            if player['load'] >= player['capacity']:
-                print("Your bag is so full, you can't move at all!")
-                player['steps'] += 1
-                player['turns'] -= 1
-                continue
             dx, dy = 0, 0
             if action == 'w':
                 dy = -1
@@ -285,14 +298,9 @@ def enter_mine(player, mine_map):
                         print(f"You mined {qty} piece(s) of {mineral}.")
                         if actual < qty:
                             print(f"...but you can only carry {actual} more piece(s)!")
-                        game_map[ny][nx] = '.'
-            continue
-        elif action == "m":
-            draw_map(game_map, fog, player)
             continue
         elif action == "i":
             show_information(player)
-            continue
         elif action == "p":
             print("You place your portal stone here and zap back to town.")
             player['day'] += 1
@@ -306,6 +314,7 @@ def enter_mine(player, mine_map):
             print("(You can save in the town menu)")
             confirmation = input("y/n: ").lower()
             if confirmation == "y":
+                show_main_menu()
                 main()
                 return
             else:
@@ -465,10 +474,8 @@ print("---------------- Welcome to Sundrop Caves! ----------------")
 print("You spent all your money to get the deed to a mine, a small")
 print("  backpack, a simple pickaxe and a magical portal stone.")
 print()
-print("How quickly can you get the 500 GP you need to retire")
+print("How quickly can you get the 1000 GP you need to retire")
 print("  and live happily ever after?")
 print("-----------------------------------------------------------")
 
 main()
-
-#I keep forgetting this
