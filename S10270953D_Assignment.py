@@ -57,8 +57,8 @@ def initialize_game(game_map, fog, player):
     load_map("level1.txt", game_map)
     fog.clear()
     player['day'] = 1
-    player['x'] = 1
-    player['y'] = 1
+    player['x'] = max(0, min(1, MAP_WIDTH - 1))
+    player['y'] = max(0, min(1, MAP_HEIGHT - 1))
     for _ in range(MAP_HEIGHT):
         fog.append([False] * MAP_WIDTH)
 
@@ -76,6 +76,7 @@ def initialize_game(game_map, fog, player):
     player['pickaxe_level'] = 1
     player['capacity'] = 10
     player['load'] = 0
+    player['torch'] = False
 
     clear_fog(fog, player)
     
@@ -96,25 +97,27 @@ def draw_map(game_map, fog, player):
     print("+" + "-" * MAP_WIDTH + "+")
 
 # This function draws the 3x3 viewport
-def draw_view(game_map, fog, player):
-    print("+---+")
-    for dy in range(-1, 2): 
+def draw_view(game_map, fog, player, viewport_size=3):
+    half = viewport_size // 2
+    print("+" + "-" * viewport_size + "+")
+    for dy in range(-half, half + 1):
         row = "|"
-        for dx in range(-1, 2):
+        for dx in range(-half, half + 1):
             nx = player['x'] + dx
             ny = player['y'] + dy
+
             if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
                 if nx == player['x'] and ny == player['y']:
-                    row += "M"
+                    row += "M"  # Player marker
                 elif fog[ny][nx]:
                     row += game_map[ny][nx]
                 else:
                     row += "?"
             else:
-                row += "#"
+                row += "#"  # Outside of map
         row += "|"
         print(row)
-    print("+---+")
+    print("+" + "-" * viewport_size + "+")
 
 # This function shows the information for the player
 def show_information(player):
@@ -158,11 +161,11 @@ def show_high_scores():
     if not scores:
         print("No high scores yet!")
         return
-    scores.sort(key=lambda x: (x['day'], x['steps']))
+    scores.sort(key=lambda x: (x['day'], x['steps'], x['GP']))
 
     #Score then steps
-    for i, score in enumerate(scores[:10], 1):  # Show top 10
-        print(f"{i}. {score['name']} - {score['GP']} GP, {score['steps']} steps, {score['day']} days")
+    for i, score in enumerate(scores[:5], 1):  # Show top 5
+        print(f"{i}. {score['name']} - {score['day']} days, {score['steps']} steps, {score['GP']} GP")
     print("------------------------")
 
 def check_win():
@@ -170,7 +173,7 @@ def check_win():
         print(f"Woo-hoo! Well done, {player['name']}, you have {player['GP']} GP!")
         print(f"You now have enough to retire and play video games every day.")
         print(f"And it only took you {player['day']} days and {player['steps']} steps! You win!")
-        save_high_score()
+        save_high_score(player)
         main()
     else:
         return
@@ -216,7 +219,8 @@ def enter_mine(player, mine_map):
     while True:  
         print("---------------------------------------------------")
         print(f"                      DAY {player['day']}                       ")
-        draw_view(mine_map, fog, player)  # Viewport
+        viewport = 5 if player.get('torch', False) else 3
+        draw_view(game_map, fog, player, viewport_size=viewport)
 
         print(f"\nTurns left: {player['turns']}, Load: {player['load']}/{player['capacity']}, Steps: {player['steps']}")
         print("(WASD) to move")
@@ -270,8 +274,12 @@ def enter_mine(player, mine_map):
                         if actual < qty:
                             print(f"...but you can only carry {actual} more piece(s)!")
             continue
+        elif action == "m":
+            draw_map(game_map, fog, player)
+            continue
         elif action == "i":
             show_information(player)
+            continue
         elif action == "p":
             print("You place your portal stone here and zap back to town.")
             player['day'] += 1
@@ -330,6 +338,10 @@ def shop_menu():
     else:
         print("Pickaxe is already at max level")
     print(f"(B)ackpack upgrade to carry {player['capacity']+2} items for {player['capacity']*2} GP")
+    if player['torch'] == False:    
+        print("Magic (T)orch, expands your view to 5x5 for 50 GP")
+    if player['torch'] == True:
+        print("You already have a torch")
     print("(L)eave shop")
     print("-----------------------------------------------------------")
     print(f"GP: {player['GP']}")
@@ -349,6 +361,15 @@ def shop_menu():
             player['GP'] -= 20
             player['capacity'] += 2
             print(f"Backpack upgraded. New capacity: {player['capacity']}")
+            shop_menu()
+        else:
+            print("Not enough GP!")
+            shop_menu()
+    elif buying == "t":
+        if player['GP'] >= 50:
+            player['GP'] -= 50
+            player['torch'] = True
+            print("You bought the Magic Torch! Your viewport is now 5x5.")
             shop_menu()
         else:
             print("Not enough GP!")
