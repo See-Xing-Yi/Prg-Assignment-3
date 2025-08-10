@@ -55,7 +55,7 @@ def initialize_game(game_map, fog, player):
     # initialize map
     load_map("level1.txt", game_map)
     fog.clear()
-    player['day'] += 1
+    player['day'] = 1
     player['x'] = 1
     player['y'] = 1
     for _ in range(MAP_HEIGHT):
@@ -63,13 +63,13 @@ def initialize_game(game_map, fog, player):
 
     # TODO: initialize player
     #   You will probably add other entries into the player dictionary
-    player['x'] = 0
-    player['y'] = 0
+    player['x'] = 1
+    player['y'] = 1
     player['copper'] = 0
     player['silver'] = 0
     player['gold'] = 0
     player['GP'] = 0
-    player['day'] = 0
+    player['day'] = 1
     player['steps'] = 0
     player['turns'] = TURNS_PER_DAY
     player['pickaxe_level'] = 1
@@ -97,11 +97,11 @@ def draw_map(game_map, fog, player):
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player):
     print("+---+")
-    for dx in range(-1, 2):
+    for dy in range(-1, 2):  # vertical offset
         row = "|"
-        for dy in range(-1, 2):
-            nx = player['x'] + dy
-            ny = player['y'] + dx
+        for dx in range(-1, 2):  # horizontal offset
+            nx = player['x'] + dx
+            ny = player['y'] + dy
             if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
                 if nx == player['x'] and ny == player['y']:
                     row += "M"
@@ -131,7 +131,7 @@ def show_information(player):
 
 def check_win():
     if player['GP'] >= 1000:
-        print(f"Woo-hoo! Well done, {player}, you have {player['GP']} GP!")
+        print(f"Woo-hoo! Well done, {player['name']}, you have {player['GP']} GP!")
         print(f"You now have enough to retire and play video games every day.")
         print(f"And it only took you {player['day']} days and {player['steps']} steps! You win!")
         main()
@@ -171,9 +171,9 @@ def in_bounds(x, y):
     return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
 
 def enter_mine(player, mine_map):
-    while True:
-        player['turns'] = TURNS_PER_DAY
-        clear_fog(fog, player)
+    player['turns'] = TURNS_PER_DAY
+    clear_fog(fog, player)
+    while True:  
         print("---------------------------------------------------")
         print(f"                      DAY {player['day']}                       ")
         draw_view(mine_map, fog, player)  # Viewport
@@ -202,12 +202,12 @@ def enter_mine(player, mine_map):
             player['x'], player['y'] = nx, ny
             player['steps'] += 1
             player['turns'] -= 1
+            clear_fog(fog, player)
             if player['turns'] == 0:
                 print("You are exhausted.")
                 print("You place your portal stone here and zap back to town.")
                 player['day'] += 1
                 show_town_menu()
-                return
             if symbol == 'T':
                 print("You step into the portal and return to town.")
                 player['day'] += 1
@@ -216,11 +216,9 @@ def enter_mine(player, mine_map):
             if mineral:
                 if mineral not in pickaxe_ability[player['pickaxe_level']]:
                     print(f"You cannot mine {mineral} with your current pickaxe.")
-                    player['turns'] -= 1
                 else:
                     if player['load'] >= player['capacity']:
                         print(f"You walk over {mineral}, but your bag is full.")
-                        player['turns'] -= 1
                     else:
                         qty = randint(*ore_drop[mineral])
                         space = player['capacity'] - player['load']
@@ -230,7 +228,6 @@ def enter_mine(player, mine_map):
                         print(f"You mined {qty} piece(s) of {mineral}.")
                         if actual < qty:
                             print(f"...but you can only carry {actual} more piece(s)!")
-                            player['turns'] -= 1
             continue
         elif action == "i":
             show_information(player)
