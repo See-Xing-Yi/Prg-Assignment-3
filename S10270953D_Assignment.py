@@ -130,28 +130,50 @@ def show_information(player):
     print("------------------------------")
     return
 
+#High score functionalities
+def save_high_score(player):
+    line = f"{player['name']} {player['GP']} {player['day']} {player['steps']}\n"
+    with open("highscores.txt", "a") as file:  # 'a' to append
+        file.write(line)
+
+def show_high_scores():
+    print("----- High Scores -----")
+
+    if not os.path.exists("highscores.txt"):
+        print("No high scores yet!")
+        return
+
+    scores = []
+    with open("highscores.txt", "r") as file:
+        for line in file:
+            parts = line.strip().split()
+            if len(parts) == 4:
+                name, gp, day, steps = parts
+                scores.append({
+                    'name': name,
+                    'GP': int(gp),
+                    'day': int(day),
+                    'steps': int(steps)
+                })
+    if not scores:
+        print("No high scores yet!")
+        return
+    scores.sort(key=lambda x: (x['day'], x['steps']))
+
+    #Score then steps
+    for i, score in enumerate(scores[:10], 1):  # Show top 10
+        print(f"{i}. {score['name']} - {score['GP']} GP, {score['steps']} steps, {score['day']} days")
+    print("------------------------")
+
 def check_win():
     if player['GP'] >= 1000:
         print(f"Woo-hoo! Well done, {player['name']}, you have {player['GP']} GP!")
         print(f"You now have enough to retire and play video games every day.")
         print(f"And it only took you {player['day']} days and {player['steps']} steps! You win!")
+        save_high_score()
         main()
     else:
         return
-
-def show_high_scores():
-    print("----- High Scores -----")
-    if not os.path.exists("highscores.txt"):
-        print("No high scores yet!")
-    else:
-        with open("highscores.txt", "r") as f:
-            highscores = json.load(f)
-            if not highscores:
-                print("No high scores yet!")
-            else:
-                for i, score in enumerate(highscores, 1):
-                    print(f"{i}. {score['name']} - {score['GP']} GP, {score['steps']} steps, {score['day']} days")
-    print("------------------------")
 
 # This function saves the game
 def save_game(game_map, fog, player):
@@ -222,6 +244,7 @@ def enter_mine(player, mine_map):
             player['turns'] -= 1
             clear_fog(fog, player)
             if player['turns'] == 0:
+                sell_ores()
                 print("You are exhausted.")
                 print("You place your portal stone here and zap back to town.")
                 player['day'] += 1
@@ -253,6 +276,7 @@ def enter_mine(player, mine_map):
             print("You place your portal stone here and zap back to town.")
             player['day'] += 1
             player['turns'] = TURNS_PER_DAY
+            sell_ores()
             show_town_menu()
             check_win()
             return
@@ -335,7 +359,7 @@ def shop_menu():
         print("Invalid choice.")
         shop_menu()
 
-def show_town_menu():
+def show_town_menu(sell=False):
     print()
     print(f"DAY {player['day']}")
     print("----- Sundrop Town -----")
@@ -346,7 +370,10 @@ def show_town_menu():
     print("Sa(V)e game")
     print("(Q)uit to main menu")
     print("------------------------")
-    sell_ores()
+
+    if sell:
+        sell_ores()
+
     choice = input("Your choice? ").lower()
     if choice == "b":
         shop_menu()
@@ -361,6 +388,11 @@ def show_town_menu():
         enter_mine(player, game_map)
     elif choice == "v":
         save_game(game_map, fog, player)
+        show_town_menu()
+    elif choice == "gimmemoney":
+        player['GP'] += 10000
+        print("Wow. Okay. Here's 10 000 GP")
+        check_win()
         show_town_menu()
     elif choice == "q":
         print("Are you sure? Any unsaved changes would be lost.")
@@ -390,8 +422,6 @@ def main():
         main()
     elif choice == "q":
         print("See you again!")
-    elif choice == "gimmemoney":
-        player['GP'] += 10000
     else:
         print("Invalid Input.")
         main()
