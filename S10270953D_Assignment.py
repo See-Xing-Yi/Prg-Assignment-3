@@ -15,7 +15,6 @@ MAP_HEIGHT = 0
 
 TURNS_PER_DAY = 20
 WIN_GP = 500
-
 minerals = ['copper', 'silver', 'gold']
 mineral_names = {'C': 'copper', 'S': 'silver', 'G': 'gold'}
 pickaxe_price = [50, 150]
@@ -236,8 +235,9 @@ def enter_mine(player, mine_map):
         if action in ['w', 'a', 's', 'd']:
             if player['load'] >= player['capacity']:
                 print("Your bag is so full, you can't move at all!")
-                player['steps'] += 1
-                player['turns'] -= 1
+                sell_ores()
+                player['day'] += 1
+                show_town_menu()
                 continue
             dx, dy = 0, 0
             if action == 'w':
