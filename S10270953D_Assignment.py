@@ -423,9 +423,9 @@ def show_town_menu(sell=False):
         save_game(game_map, fog, player)
         show_town_menu()
     elif choice == "gimmemoney":
-        input("How much? ")
-        player['GP'] += 10000
-        print("Wow. Okay. Here's 10 000 GP")
+        extra = input("How much? ")
+        player['GP'] += int(extra)
+        print(f"Wow. Okay. Here's [{extra}] GP")
         check_win()
         show_town_menu()
     elif choice == "q":
