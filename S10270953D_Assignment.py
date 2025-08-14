@@ -264,7 +264,7 @@ def enter_mine(player, mine_map):
                 print("You are exhausted.")
                 print("You place your portal stone here and zap back to town.")
                 player['day'] += 1
-                show_town_menu()
+                show_town_menu()    #Auto this time
             if symbol == 'T':
                 print("You step into the portal and return to town.")
                 player['day'] += 1
@@ -344,7 +344,7 @@ def shop_menu():
         next_level = player['pickaxe_level'] + 1
         ores_for_next_level = pickaxe_ability[next_level]
         ore_name = ores_for_next_level[-1]
-        price_index = next_level - 2  
+        price_index = next_level - 1
         price = pickaxe_price[price_index]
         print(f"(P)ickaxe upgrade to {player['pickaxe_level']+1} to mine {ore_name} ore for {price} GP")
     else:
@@ -423,6 +423,7 @@ def show_town_menu(sell=False):
         save_game(game_map, fog, player)
         show_town_menu()
     elif choice == "gimmemoney":
+        input("How much? ")
         player['GP'] += 10000
         print("Wow. Okay. Here's 10 000 GP")
         check_win()
