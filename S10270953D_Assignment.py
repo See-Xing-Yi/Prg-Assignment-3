@@ -344,7 +344,7 @@ def shop_menu():
         next_level = player['pickaxe_level'] + 1
         ores_for_next_level = pickaxe_ability[next_level]
         ore_name = ores_for_next_level[-1]
-        price_index = next_level - 1
+        price_index = next_level - 2
         price = pickaxe_price[price_index]
         print(f"(P)ickaxe upgrade to {player['pickaxe_level']+1} to mine {ore_name} ore for {price} GP")
     else:
@@ -361,7 +361,7 @@ def shop_menu():
     buying = input("Your choice? ").lower()
     if buying == "p":
         if player['GP'] >= price and player['pickaxe_level'] < 3:
-            player['GP'] -= 50
+            player['GP'] -= price
             player['pickaxe_level'] += 1
             print(f"Pickaxe upgraded to level {player['pickaxe_level']}!")
             shop_menu()
