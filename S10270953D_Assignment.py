@@ -93,7 +93,7 @@ def draw_map(game_map, fog, player):
         row = "|"
         for j in range(MAP_WIDTH):
             if i == player['y'] and j == player['x']: 
-                row += "M"
+                row += "M"  # Player marker
             elif fog[i][j]:
                 row += game_map[i][j]
             else:
@@ -104,6 +104,7 @@ def draw_map(game_map, fog, player):
 
 # This function draws the 3x3 viewport
 def draw_view(game_map, fog, player, viewport_size=3):
+    
     half = viewport_size // 2
     print("+" + "-" * viewport_size + "+")
     for dy in range(-half, half + 1):
@@ -114,7 +115,7 @@ def draw_view(game_map, fog, player, viewport_size=3):
 
             if 0 <= ny < MAP_HEIGHT and 0 <= nx < MAP_WIDTH:
                 if nx == player['x'] and ny == player['y']:
-                    row += "M"  # Player marker
+                   row += "M"  # Player marker
                 elif fog[ny][nx]:
                     row += game_map[ny][nx]
                 else:
@@ -392,7 +393,7 @@ def shop_menu():
         print("Invalid choice.")
         shop_menu()
 
-def show_town_menu(sell=False):
+def show_town_menu(sell=False, in_town=True):
     print()
     print(f"DAY {player['day']}")
     print("----- Sundrop Town -----")
@@ -414,7 +415,19 @@ def show_town_menu(sell=False):
         show_information(player)
         show_town_menu()
     elif choice == "m":
-        draw_map(game_map, fog, player)
+        print("+" + "-" * MAP_WIDTH + "+")
+        for i in range(MAP_HEIGHT):
+            row = "|"
+            for j in range(MAP_WIDTH):
+                if i == player['y'] and j == player['x']: 
+                    row += "P"  # Portal marker
+                elif fog[i][j]:
+                    row += game_map[i][j]
+                else:
+                    row += "?"
+            row += "|"
+            print(row)
+        print("+" + "-" * MAP_WIDTH + "+")
         show_town_menu()
     elif choice == "e":
         clear_fog(fog, player)
